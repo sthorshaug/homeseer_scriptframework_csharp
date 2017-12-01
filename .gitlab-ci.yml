@@ -1,0 +1,40 @@
+image: mono:latest
+
+cache:
+  paths:
+   - ./HomeseerScripts.Test/bin/Release/
+  
+before_script:
+- echo "Restoring NuGet packages..."
+- cd src
+- nuget restore
+
+stages:
+ - build
+ - test
+ 
+build:
+  stage: build
+  script:
+   - echo "Doing release build..."
+   - MONO_IOMAP=case msbuild /t:Build /p:Configuration="Release" /p:Platform="x86" HomeseerScripts.sln
+   - cd ..
+   - chmod +x generatescripts.sh
+   - echo "Generating scripts..."
+   - ./generatescripts.sh
+  artifacts:
+    paths:
+    - hs_scripts/
+    expire_in: 4 weeks
+  
+test:
+  stage: test
+  script:
+   - echo "Running NUnit tests..."
+   - mono ./packages/NUnit.ConsoleRunner.3.7.0/tools/nunit3-console.exe ./HomeseerScripts.Test/bin/Release/HomeseerScripts.Test.dll
+  artifacts:
+    paths:
+    - src/TestResult.xml
+    expire_in: 4 weeks
+  dependencies:
+   - build
