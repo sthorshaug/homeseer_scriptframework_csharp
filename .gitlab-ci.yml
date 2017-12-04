@@ -2,7 +2,7 @@ image: mono:latest
 
 cache:
   paths:
-   - ./HomeseerScripts.Test/bin/Release/
+   - ./src/HomeseerScripts.Test/bin/Release/
   
 before_script:
 - echo "Restoring NuGet packages..."
